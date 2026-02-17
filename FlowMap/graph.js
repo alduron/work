@@ -1,6 +1,7 @@
 let level = 1;
 let shouldFit = true;
-let nodePositions = {};  // Saved positions from last dagre run
+let nodePositions = {};  // Saved positions from last render (for animation)
+let basePositions = {};  // Dagre-computed positions, locked after first layout
 const exNodes = {}, exEdges = {};
 
 // ── Metric bar HTML helpers ──
@@ -187,6 +188,7 @@ function setLevel(l) {
   if (l === 3) GRAPH.edges.forEach(e => { exEdges[e.id] = true; });
   shouldFit = true;
   nodePositions = {};
+  basePositions = {};
   render();
 }
 function clr(o) { Object.keys(o).forEach(k => delete o[k]); }
@@ -280,7 +282,6 @@ function renderL1() {
 
 // ── L2/L3: Component view ──
 function renderL2L3() {
-  const { t, cross } = buildTree();
   const isAnimated = !shouldFit;
 
   // ── Phase 1: Build structural elements (main nodes, edges, path nodes) ──
@@ -342,14 +343,6 @@ function renderL2L3() {
     }
   });
 
-  // Cross edges
-  cross.forEach(edge => {
-    structEls.push({
-      data: { id: 'cross-' + edge.from + '-' + edge.to, source: edge.from, target: edge.to, label: '' },
-      classes: 'cross'
-    });
-  });
-
   // Detail elements — kept separate, positioned manually after dagre
   Object.keys(exNodes).forEach(nid => {
     if (!exNodes[nid] || !GRAPH.details[nid]) return;
@@ -369,35 +362,72 @@ function renderL2L3() {
     });
   });
 
-  // ── Phase 2: Run dagre on structural elements only ──
+  // ── Phase 2: Position structural elements ──
   cy.add(structEls);
-
-  function sortY(node) {
-    const id = node.id();
-    if (nodePositions[id]) return nodePositions[id].y;
-    const origin = node.data('pathEdgeFrom');
-    if (origin && nodePositions[origin]) return nodePositions[origin].y;
-    return 0;
-  }
-
-  cy.layout({
-    name: 'dagre',
-    rankDir: 'LR',
-    nodeSep: 50,
-    rankSep: 150,
-    edgeSep: 20,
-    ranker: 'network-simplex',
-    spacingFactor: 1.15,
-    fit: false,
-    avoidOverlap: true,
-    nodeDimensionsIncludeLabels: true,
-    sort: function (a, b) { return sortY(a) - sortY(b); },
-    animate: false
-  }).run();
-
-  // Capture dagre's computed positions as our target
   const targetPos = {};
-  cy.nodes().forEach(n => { targetPos[n.id()] = { ...n.position() }; });
+  const hasBase = Object.keys(basePositions).length > 0;
+
+  if (!hasBase) {
+    // First render for this level: run dagre to establish the base layout
+    cy.layout({
+      name: 'dagre',
+      rankDir: 'LR',
+      nodeSep: 80,
+      rankSep: 160,
+      edgeSep: 30,
+      ranker: 'network-simplex',
+      spacingFactor: 1.15,
+      fit: false,
+      avoidOverlap: true,
+      nodeDimensionsIncludeLabels: true,
+      animate: false
+    }).run();
+    // Lock these positions as the stable base
+    cy.nodes().forEach(n => { basePositions[n.id()] = { ...n.position() }; });
+    cy.nodes().forEach(n => { targetPos[n.id()] = { ...n.position() }; });
+  } else {
+    // Subsequent renders: start from locked base positions (no dagre re-run)
+    Object.keys(basePositions).forEach(id => {
+      targetPos[id] = { ...basePositions[id] };
+    });
+
+    // Insert path nodes for edges expanded AFTER the base layout
+    const PATH_GAP = 180;
+    const newPathEdges = GRAPH.edges.filter(e =>
+      exEdges[e.id] && targetPos[e.from] && targetPos[e.to] &&
+      !basePositions['i-' + e.id + '-0']  // not already in base layout
+    );
+    newPathEdges.sort((a, b) => targetPos[a.from].x - targetPos[b.from].x);
+
+    newPathEdges.forEach(edge => {
+      const fromX = targetPos[edge.from].x;
+      const fromY = targetPos[edge.from].y;
+      const toY = targetPos[edge.to].y;
+      const totalPush = edge.path.length * PATH_GAP;
+
+      // Push everything to the right of source to make room
+      Object.keys(targetPos).forEach(id => {
+        if (targetPos[id].x > fromX + 10) {
+          targetPos[id].x += totalPush;
+        }
+      });
+
+      // Place path nodes in the created space
+      edge.path.forEach((inf, i) => {
+        const pid = 'i-' + edge.id + '-' + i;
+        const t = (i + 1) / (edge.path.length + 1);
+        targetPos[pid] = {
+          x: fromX + (i + 1) * PATH_GAP,
+          y: fromY + (toY - fromY) * t
+        };
+      });
+    });
+
+    // Apply positions to cy nodes
+    cy.nodes().forEach(n => {
+      if (targetPos[n.id()]) n.position(targetPos[n.id()]);
+    });
+  }
 
   // ── Phase 3: Add detail nodes and compute all positions with push-right ──
   cy.add(detailEls);
