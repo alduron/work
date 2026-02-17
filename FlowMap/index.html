@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IncidentHub — Service Map</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="header">
+  <h1>IncidentHub — Service Map</h1>
+  <div class="level-selector">
+    <button class="lvl-btn active" data-level="1" onclick="setLevel(1)">L1: Applications</button>
+    <button class="lvl-btn" data-level="2" onclick="setLevel(2)">L2: Components</button>
+    <button class="lvl-btn" data-level="3" onclick="setLevel(3)">L3: Infrastructure</button>
+  </div>
+  <div class="legend">
+    <span class="legend-item"><span class="dot healthy"></span> Healthy</span>
+    <span class="legend-item"><span class="dot warning"></span> Warning</span>
+    <span class="legend-item"><span class="dot degraded"></span> Degraded</span>
+    <span class="legend-item" style="color:#5a8aaa;margin-left:8px">(n) click badge to trace</span>
+    <span class="legend-item" style="color:#5a8aaa">[+] click node to expand</span>
+  </div>
+</div>
+<div id="cy"></div>
+<div id="tooltip"></div>
+<script src="cytoscape.min.js"></script>
+<script src="cytoscape-node-html-label.min.js"></script>
+<script src="dagre.min.js"></script>
+<script src="cytoscape-dagre.js"></script>
+<script src="data.js"></script>
+<script src="graph.js"></script>
+</body>
+</html>
