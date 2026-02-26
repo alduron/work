@@ -147,4 +147,4 @@ CQRS (Command Query Responsibility Segregation) pairs naturally with event-drive
 
 ---
 
-*This tenet is part of the [Architecture Modernization Tenets](./00-Architecture-Tenets-Overview.md). It should be read alongside [API-First Contracts](./04-API-First-Contracts.md) for integration patterns and [Real-Time, Read-Optimized Views](./06-Real-Time-Read-Optimized-Views.md) for the read-side of event-driven architectures.*
+*This tenet is part of the [Architecture Modernization Tenets](./00-Architecture-Tenets-Overview.md). It should be read alongside [API-First Contracts](./04-API-First-Contracts.md) for integration patterns and [Data Freshness and Access Patterns](./06-Data-Freshness-and-Access-Patterns.md) for the read-side of event-driven architectures.*
