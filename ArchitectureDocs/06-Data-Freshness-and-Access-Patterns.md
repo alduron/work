@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This tenet is about knowing how fresh your data is, knowing how fresh it needs to be, and closing the gap. Across the firm, applications routinely make decisions based on data that is 24 hours old or more because most systems were built around overnight batch processing. It is not about making everything real-time. Some data can absolutely be a day old and that is fine. But the team should be making that decision deliberately, not inheriting it because "that is how the batch job works."
+This tenet is about knowing how fresh your data is, knowing how fresh it needs to be, and closing the gap. Across the firm, applications routinely make decisions based on data that is 24 hours old or more because most systems were built around batch processing. It is not about making everything real-time. Some data can absolutely be a day old and that is fine. But the team should be making that decision deliberately, not inheriting it because "that is how the batch job works."
 
 ---
 

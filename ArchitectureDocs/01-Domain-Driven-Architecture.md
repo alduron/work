@@ -6,10 +6,10 @@ Domain-Driven Architecture organizes your system around business capabilities in
 
 ## Key Principles
 
-- Domains own their logic, data, and APIs regardless of deployment model
+- Domains own their logic, data, and interfaces regardless of deployment model
 - Shared database clusters are allowed with strict schema ownership per domain
 - No cross-domain writes
-- Cross-domain reads go through APIs or read models/projections
+- Cross-domain reads go through defined interfaces or read models/projections
 - Domains publish events for meaningful state changes
 - Boundaries reflect business process, not technical layers
 - No domain should require deep knowledge of another domain
@@ -25,9 +25,9 @@ Domain-Driven Architecture organizes your system around business capabilities in
 
 - **Enforce module boundaries through access controls.** Use your language's visibility features (internal classes, package-private access, module systems) to prevent one domain from directly calling another domain's internals. If you cannot enforce it technically, enforce it through code review and linting rules.
 
-- **Each module owns its own database schema or set of tables.** Even though everything lives in one database, each module should only read and write its own tables. Cross-module data access goes through the module's public API, never through direct table queries.
+- **Each module owns its own database schema or set of tables.** Even though everything lives in one database, each module should only read and write its own tables. Cross-module data access goes through the module's public interface, never through direct table queries. To be clear, a "public interface" in a monolith is not a separate REST endpoint. It is a service class or interface that acts as the front door to that module. Other modules call methods on that interface. It is a method call within the same process, not a network call. The point is to have a defined boundary so that other modules are not reaching directly into your internal classes, repositories, or data access layers.
 
-- **Use in-process events to decouple modules.** When one module needs to notify another module that a state change occurred, publish an in-process event rather than making a direct method call. This keeps your modules loosely coupled and makes it easier to extract them later if you need to.
+- **Use in-process events to decouple modules.** When one module needs to notify another module that a state change occurred, publish an in-process event rather than making a direct method call. This does not require installing a message broker like Kafka or RabbitMQ. Most frameworks have built-in support for this pattern. Spring has `ApplicationEventPublisher`, .NET has MediatR notifications, and Python frameworks can use a simple pub/sub class or a lightweight library. The event bus lives in memory inside your application. Events are plain data objects, and handlers are just methods that get called when an event is published. This keeps your modules loosely coupled and makes it easier to extract them later if you need to.
 
 - **Document the context map.** Even in a monolith, draw a diagram showing which modules exist, what each one owns, and how they communicate. This is the single most valuable artifact for onboarding new developers.
 
@@ -61,7 +61,7 @@ Most enterprise applications share a database. Sometimes multiple applications s
 
 The first step is to assign table ownership. Every table in your shared database should have exactly one owning domain. That domain is the only one allowed to write to those tables. Other domains can read from them in the short term, but the long-term goal is to eliminate cross-domain reads too. Document this ownership in a simple spreadsheet or wiki page. This alone is a huge improvement because it tells you who to talk to when a schema change is needed.
 
-The second step is to introduce read APIs or views. Instead of letting one domain query another domain's tables directly, have the owning domain expose a database view or a lightweight API that provides the data the consuming domain needs. This gives the owning team freedom to change their internal schema without breaking consumers. It also makes the dependency explicit and visible.
+The second step is to introduce read interfaces or views. Instead of letting one domain query another domain's tables directly, have the owning domain expose a database view or a service method that provides the data the consuming domain needs. In a monolith, this is just a class with well-defined methods that returns the data other modules are allowed to see. It is not a separate HTTP endpoint or a standalone service. It is a clean boundary within your application code. This gives the owning team freedom to change their internal schema without breaking consumers. It also makes the dependency explicit and visible.
 
 The third step, taken over time, is to split the data. As you gain confidence in your domain boundaries and your integration patterns mature, you start migrating domains to their own schemas or databases. This does not have to happen all at once. Start with the domain that changes most frequently or the one where shared access causes the most coordination pain. Putting an API or event stream in front of heavily shared tables is usually the highest-value move you can make.
 

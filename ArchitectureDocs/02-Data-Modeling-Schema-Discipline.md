@@ -8,7 +8,7 @@ When there is no discipline around how data is modeled, schema drift creeps in, 
 
 ## Key Principles
 
-- Every shared data entity has a single, explicitly identified owner
+- Every shared data entity has a single authoritative application. Ownership lives at the application level, meaning the application that creates and maintains the data is the authority, and the development team responsible for that application manages its schema. This is not about assigning a single person as the owner. It is about making sure there is one clear source of truth and one team accountable for how that data is structured and changed.
 - Shared data conforms to a canonical model agreed on across consumers
 - Internal database schemas are separate from external data contracts
 - All schema changes are versioned and backward-compatible by default
@@ -16,7 +16,6 @@ When there is no discipline around how data is modeled, schema drift creeps in, 
 - Incoming data is validated against the expected schema at every boundary
 - Data models are published in a discoverable catalog, not buried in code
 - Schema changes that affect regulatory reporting require cross-team review before shipping
-- No team changes another team's schema
 
 ---
 
@@ -61,13 +60,13 @@ Regulatory reporting deserves special attention. If your data feeds regulatory r
 
 ## Data Ownership and Boundaries
 
-The single hardest data problem across the firm is answering the question, "Who owns this data?" The honest answer is usually, "Everyone and no one." Multiple systems store overlapping data with slightly different fields, slightly different formats, and slightly different update frequencies. When they disagree, nobody knows which one is right.
+The single hardest data problem across the firm is answering the question, "Which application is the authority for this data?" The honest answer is usually that multiple applications store overlapping data with slightly different fields, slightly different formats, and slightly different update frequencies. When they disagree, nobody knows which one is right.
 
-The fix is not to force every system into a single shared database. That has been tried and it creates a bottleneck that slows every team down. Instead, designate one system as the authoritative source for each piece of data. Each system publishes its authoritative data through events or APIs, and other systems subscribe to those updates. They can store local copies for performance, but they do not get to overwrite the authoritative source.
+The fix is not to force every application into a single shared database. That has been tried and it creates a bottleneck that slows everyone down. Instead, designate one application as the authoritative source for each piece of shared data. That application publishes its data through events or defined interfaces, and other applications subscribe to those updates. They can store local copies for performance, but they do not get to overwrite the authoritative source.
 
-Establishing these ownership boundaries takes real organizational work. It is not a purely technical exercise. You need business stakeholders, data stewards, and application teams to agree on who owns what. Start with the most contested data domains first, get those ownership lines drawn, document them, and enforce them through technical controls like API gateways and event schemas that only the owning system can publish to.
+Establishing these boundaries takes real organizational work. It is not a purely technical exercise. You need business stakeholders, data stewards, and the development teams responsible for each application to agree on which application is the authority for which data. Start with the most contested data domains first, get those lines drawn, and document them clearly.
 
-Once ownership is clear, the day-to-day work gets much simpler. Teams know where to go for the truth. Schema changes go through the owning team. Disputes have a clear escalation path. And your data quality improves because there is one team accountable for each critical data element, rather than fifteen teams all assuming someone else is handling it.
+Once this is established, the day-to-day work gets much simpler. Development teams know where to go for the truth. Schema changes are handled by the team that owns the authoritative application. Disputes have a clear escalation path. And your data quality improves because there is one application and one team accountable for each critical data element, rather than fifteen applications all assuming someone else is handling it.
 
 ---
 
@@ -105,7 +104,7 @@ Once ownership is clear, the day-to-day work gets much simpler. Teams know where
 ## Minimum Standards
 
 1. Every application must use a versioned schema migration tool for all database changes. No manual DDL in production.
-2. Every application must document its primary data entities and their ownership (authoritative or derived) in a location accessible to other teams.
+2. Every application must document its primary data entities and whether the application is the authoritative source or receives that data from another application. This documentation should be accessible to other teams.
 3. Any data published to other systems (via APIs, events, or files) must have a documented schema that includes field names, types, and required/optional status.
 4. Schema changes to published data must be backward-compatible, or the team must provide a documented migration plan with a defined timeline.
 5. Incoming data from external systems must be validated against an expected schema before being persisted or processed.
@@ -113,7 +112,7 @@ Once ownership is clear, the day-to-day work gets much simpler. Teams know where
 7. No application may directly access another application's database. All cross-application data access must go through APIs or events.
 8. Schema changes that affect data used in regulatory reporting must be reviewed with the relevant compliance or risk stakeholder before deployment.
 9. Every published schema must include a version identifier that changes when the schema changes.
-10. Data ownership for shared entities must be documented and agreed upon with consuming teams.
+10. For shared data entities, the authoritative application must be identified and documented. The development teams responsible for consuming applications should know which application is the source of truth.
 
 ---
 

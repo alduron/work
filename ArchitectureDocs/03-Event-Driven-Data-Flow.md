@@ -20,7 +20,8 @@ Most integration problems across the firm come down to one thing: systems are to
 
 ### Modular Monolith
 
-- Use an in-process event bus (like MediatR notifications or a simple pub/sub abstraction) to decouple modules within the monolith. One module publishes an event and another module reacts to it without a direct dependency.
+- Use an in-process event bus to decouple modules within the monolith. One module publishes an event and another module reacts to it without a direct dependency. This does not require external messaging infrastructure. There is no need to install Kafka, RabbitMQ, or any message broker for events that flow between modules inside the same application. The event bus is an object that lives in memory within your process.
+- Most frameworks already have this capability built in. Spring provides `ApplicationEventPublisher` out of the box. .NET has MediatR's `INotification` pattern. Python frameworks can use a simple pub/sub class, the `blinker` library, or `fastapi-events`. Node.js has `EventEmitter` built into the runtime, and NestJS has `@nestjs/event-emitter`. If none of these fit, you can write a basic event bus in under 50 lines of code. It is a list of handlers keyed by event name, and a publish method that calls them.
 - Domain events should flow through the event bus, not through direct method calls between modules. This keeps your module boundaries clean even though everything runs in the same process.
 - Keep event handlers in the consuming module, not the producing module. The producing module should not contain logic about what happens in downstream consumers.
 - Start building your event catalog now, even if the events only flow in-process. When you eventually extract a module into its own service, these same events become integration events with minimal rework.
@@ -28,7 +29,7 @@ Most integration problems across the firm come down to one thing: systems are to
 
 ### Macrocomponents
 
-- Introduce a message broker (Kafka, RabbitMQ, or Azure Service Bus depending on your platform) as the backbone for communication between your services. Direct service-to-service HTTP calls should be the exception, not the norm.
+- Once events need to cross process boundaries, meaning one separately deployed application needs to communicate with another, that is when a message broker becomes relevant. Introduce a broker (Kafka, RabbitMQ, or Azure Service Bus depending on your platform) as the backbone for communication between your separately deployed services. Direct service-to-service HTTP calls should be the exception, not the norm. If your domains all live inside a single application, you do not need a broker. The in-process event bus described above is sufficient.
 - Each macrocomponent publishes integration events to shared topics. One service publishes an event to a topic, and other services subscribe independently.
 - Use dead letter queues for messages that fail processing. You cannot afford to silently drop events. Every failed message needs to be visible, trackable, and retryable.
 - Define clear ownership of topics and event schemas. The producing service owns the schema. Consumers adapt to it. Do not let consumers dictate what the producer publishes.
@@ -138,9 +139,9 @@ CQRS (Command Query Responsibility Segregation) pairs naturally with event-drive
 
 2. **Define your first domain events.** Pick one bounded context in your application and list the meaningful things that happen there. Write them down in a simple event catalog with names, descriptions, and payload schemas.
 
-3. **Implement an in-process event bus.** Before introducing external messaging infrastructure, start with an in-process event bus to decouple modules within your application. Publish a domain event from one module and handle it in another. This builds the habit and the patterns without the operational overhead of a broker.
+3. **Implement an in-process event bus.** Use your framework's built-in event support or write a simple pub/sub abstraction. Publish a domain event from one module and handle it in another. This is not a stepping stone to a message broker. For most applications where domains live inside the same process, an in-process event bus is the end state. It builds clean module boundaries with zero infrastructure overhead.
 
-4. **Pick one synchronous integration to convert.** Find a synchronous call to another system that causes reliability problems. Replace it with an event-based flow using your platform's message broker. Implement the outbox pattern, set up a dead letter queue, and make your consumer idempotent. This is your proof of concept.
+4. **Pick one synchronous integration to convert.** If your application communicates with other separately deployed applications, find a synchronous call that causes reliability problems when the other system is slow or unavailable. Replace it with an event-based flow using a message broker. Implement the outbox pattern, set up a dead letter queue, and make your consumer idempotent. This step only applies when events need to cross process boundaries. If all your domains live within one application, step 3 is where you should focus your effort.
 
 5. **Establish monitoring from day one.** Before you go live with any event-driven flow, make sure you can see what is happening. Track event publishing rates, consumer lag, dead letter queue depth, and processing errors. You will thank yourself during the first production incident.
 

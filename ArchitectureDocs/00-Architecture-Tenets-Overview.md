@@ -2,15 +2,15 @@
 
 ## What This Is
 
-We are modernizing how we build and maintain custom applications across the firm. This guide defines **11 Architecture Tenets**, a set of patterns and principles that every application team should be working toward.
+We are modernizing how we build and maintain custom applications across ITSO. This guide defines a set of patterns and principles that every application team should be working toward.
 
 These are not rigid mandates. They are practical guidelines designed to meet teams where they are today and give them a clear path forward. Some teams are just getting started. Others are well along. That is fine. The goal is progress, not perfection.
 
-Every application will be assessed against these tenets. Teams adopt patterns at their own pace, and we score applications to track maturity over time. This helps leadership measure progress, prioritize investment, and make informed decisions about which applications to modernize, retire, or replace.
+Every application will be assessed against these tenets. Teams adopt patterns at their own pace, and we score applications to track maturity over time. This helps leadership measure progress, prioritize investment, and make informed decisions about each application.
 
 ---
 
-## The 11 Tenets
+## The Tenets
 
 ### Design and Structure
 
@@ -47,7 +47,7 @@ Deploy your application on its own, at any time, without coordinating with other
 ### Infrastructure
 
 **[Cloud-Ready Scalability and Resilience](./09-Cloud-Ready-Scalability-Resilience.md)**
-Build applications that can scale horizontally, recover from failure, and run on infrastructure defined in code. No more snowflake servers or month-end capacity prayers.
+Build applications that can scale horizontally, recover from failure, and run on infrastructure defined in code.
 
 ### Cross-Cutting
 
@@ -95,7 +95,7 @@ The pattern is fully embedded and continuously improving. The team contributes b
 
 1. **Self-Assessment.** Application teams score themselves against each tenet using the maturity rubric
 3. **Evidence-Based.** Scores must be backed by real artifacts like code, configs, pipelines, or dashboards
-4. **Quarterly Cadence.** Scores are refreshed every quarter to track progress over time
+4. **Regular Cadence.** Scores are refreshed on a regular cadence to track progress over time
 
 ### Score Scale
 
@@ -156,31 +156,17 @@ The **Application Modernization Score** is a weighted average across all 11 tene
 
 ---
 
-## Adoption Roadmap
+## Adoption Journey
 
-### Phase 1. Foundation (Quarters 1 and 2)
-- All applications are assessed against the tenets
-- Teams reach Level 1 for Security, Compliance and Governance (Tenet 11)
-- Teams reach Level 1 for Observability (Tenet 7)
-- Shared tooling and templates are established
+These tenets define where each application needs to get to, not when it needs to get there. Each of the 15 applications will chart its own path based on its current state, its business criticality, and the priorities of its team. The maturity levels provide a shared definition of progress, and the scoring framework gives teams a way to measure where they stand.
 
-### Phase 2. Adoption (Quarters 3 and 4)
-- All applications reach Level 1 across all tenets
-- High-priority applications target Level 2 for Design and Structure tenets
-- CI/CD pipelines are standardized (Tenet 8)
-- An API catalog is established (Tenet 4)
+### Suggested Progression
 
-### Phase 3. Optimization (Quarters 5 through 8)
-- The portfolio average reaches the Yellow band or higher
-- Reference implementations are published for each architecture model
-- AI-Ready patterns are adopted by strategic applications
-- Event-driven integration patterns are established between domains
-
-### Phase 4. Excellence (Ongoing)
-- Continuous improvement driven by quarterly scoring
-- A community of practice shares knowledge across teams
-- Tenets evolve based on lessons learned
-- New tenets are added as the technology landscape changes
+1. **Assess.** Every application should be scored against the tenets to establish a baseline. You cannot improve what you have not measured.
+2. **Secure the foundation.** Security, Compliance and Governance (Tenet 11) and Observability (Tenet 7) are foundational. Teams should prioritize reaching Level 1 in these areas before moving on to other tenets.
+3. **Broaden adoption.** Work toward Level 1 across all tenets. Standardize CI/CD pipelines (Tenet 8) and establish the shared API catalog (Tenet 4). These enablers make everything else easier.
+4. **Deepen maturity.** Push high-priority areas toward Level 2 and Level 3. Publish reference implementations, adopt event-driven integration patterns, and introduce AI-Ready capabilities where they add value.
+5. **Sustain and evolve.** Architecture is not a destination. Continuously reassess scores, share knowledge through the community of practice, and evolve the tenets themselves as the technology landscape changes.
 
 ---
 

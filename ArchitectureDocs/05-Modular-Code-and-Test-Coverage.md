@@ -57,13 +57,13 @@ For APIs, add contract tests. These sit between integration and end-to-end tests
 
 ---
 
-## Dependency Management and Clean Architecture
+## Keep Business Logic Separate from Infrastructure
 
-The most important structural decision you will make is where your business logic lives and what it depends on. In clean architecture (sometimes called hexagonal architecture or ports and adapters), your business logic sits at the center and depends on nothing external. It defines interfaces (ports) for everything it needs from the outside world, like "I need to look up an account" or "I need to publish a transaction event." The infrastructure code at the edges implements those interfaces (adapters) and handles the messy details of databases, APIs, and message brokers.
+The goal is straightforward. Your business logic, meaning the calculations, validations, and rules that define what your application actually does, should not directly depend on your database, your HTTP framework, or any external service. It should be plain code that takes inputs and produces outputs.
 
-In practice, this means your business service depends on an abstracted provider interface, not on a concrete API client. Your compliance check logic depends on a repository interface, not on a SQL query that hits a specific database. This is not academic purity for its own sake. It is what makes your code testable. In a unit test, you pass in a simple in-memory implementation or a test double. In production, you wire in the real infrastructure. The business logic does not change.
+When business logic is tangled up with database queries and API calls, the only way to test it is to stand up the entire environment. When it is separated, you can test your rules with simple function calls and predictable inputs. That is the difference between a test suite that runs in seconds and one that takes 20 minutes and fails randomly.
 
-Keep your project structure honest about these dependencies. Put your domain logic in a project that has no references to database frameworks, HTTP libraries, or messaging SDKs. If someone accidentally adds a reference to Entity Framework or Spring Data in your domain project, the build should break. This physical separation is far more effective than relying on code reviews to catch dependency violations. Many teams find it helpful to use a project layout like `Domain` (pure business logic), `Application` (use cases and orchestration), `Infrastructure` (database, API clients, messaging), and `API` or `Web` (entry points). The dependency arrows always point inward, toward the domain.
+How you organize your folders and packages to achieve this is up to your team. Every framework and language has its own conventions. The principle is what matters: business logic should not import your database library, your HTTP framework, or your messaging SDK. The code that talks to those systems should live in a separate place and call into the business logic, not the other way around.
 
 ---
 

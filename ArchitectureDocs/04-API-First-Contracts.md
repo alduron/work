@@ -23,7 +23,7 @@ API-first means you design the contract before you write the implementation. You
 - Define explicit interfaces between modules even though they run in the same process. Your accounts module should expose a clear interface to the lending module, not let it reach into internal classes or data access layers.
 - Use interface contracts (TypeScript interfaces, Java interfaces, Kotlin sealed classes) to formalize what each module exposes. These are your internal API contracts.
 - Document internal module contracts in the same catalog as external APIs. Even if they are not HTTP endpoints today, they represent integration boundaries that other teams depend on.
-- Treat internal module interfaces as if they could become external APIs tomorrow. Because in a modernization journey, they often do. The module that is internal today might become a standalone service next quarter.
+- Treat internal module interfaces as if they could become external APIs tomorrow. Because in a modernization journey, they often do. The module that is internal today might become a standalone service tomorrow.
 
 ### Macrocomponents
 

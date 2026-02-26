@@ -2,7 +2,7 @@
 
 ## Purpose
 
-AI and machine learning are being embedded into operations across the firm right now, from fraud detection and document classification to risk scoring and process automation. AI-ready architecture means building the hooks, pipelines, and interfaces now so your application is not a dead end when the time comes. You do not need to build AI features today, but you do need clean data access patterns, well-defined events, and integration points where model outputs can plug into business processes without a rewrite.
+AI and machine learning are being embedded into operations across the firm right now. AI-ready architecture means building the hooks, pipelines, and interfaces now so your application is not a dead end when the time comes. You do not need to build AI features today, but you do need clean data access patterns, well-defined events, and integration points where model outputs can plug into business processes without a rewrite.
 
 ---
 
