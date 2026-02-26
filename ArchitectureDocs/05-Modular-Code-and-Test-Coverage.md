@@ -4,8 +4,6 @@
 
 Modular, testable code is the foundation of sustainable delivery. When your code is organized into focused modules with clear boundaries, and when your business logic can be tested in isolation, you ship faster because changes are contained, you onboard new developers faster because the code is readable, and you catch bugs before they reach production. This tenet is about building code that your team can change with confidence, today and five years from now.
 
----
-
 ## Key Principles
 
 - Business logic does not depend on frameworks, databases, or external services
@@ -18,32 +16,28 @@ Modular, testable code is the foundation of sustainable delivery. When your code
 - Composition over inheritance
 - Every module has a clear public interface and hides its internals
 
----
-
 ## How This Applies by Architecture Model
 
 ### Modular Monolith
 
-- **Define explicit module boundaries.** Even though everything deploys together, each module should have a public API (a set of interfaces or service contracts) and keep its internals private. One module should not reach into another module's database tables.
-- **Use a shared kernel carefully.** Common types like `Money`, `EntityId`, or `DateRange` can live in a shared kernel. But keep it small. If the shared kernel grows into a dumping ground for everything, you have lost your module boundaries.
-- **Enforce boundaries with project structure or build rules.** Use separate projects, packages, or build modules to make it physically difficult to violate module boundaries. A compile error is better than a code review comment.
-- **Communicate between modules through defined interfaces.** Module-to-module calls should go through service interfaces, not by directly instantiating another module's internal classes. This gives you the option to extract a module into a separate service later without rewriting the callers.
+- Define explicit module boundaries. Even though everything deploys together, each module should have a public API (a set of interfaces or service contracts) and keep its internals private. One module should not reach into another module's database tables.
+- Use a shared kernel carefully. Common types like `Money`, `EntityId`, or `DateRange` can live in a shared kernel. But keep it small. If the shared kernel grows into a dumping ground for everything, you have lost your module boundaries.
+- Enforce boundaries with project structure or build rules. Use separate projects, packages, or build modules to make it physically difficult to violate module boundaries. A compile error is better than a code review comment.
+- Communicate between modules through defined interfaces. Module-to-module calls should go through service interfaces, not by directly instantiating another module's internal classes. This gives you the option to extract a module into a separate service later without rewriting the callers.
 
 ### Macrocomponents
 
-- **Structure each macrocomponent internally as if it were a modular monolith.** Just because you split into a few services does not mean you can skip internal code organization. Each macrocomponent still needs clean layers and testable business logic.
-- **Isolate shared libraries and keep them stable.** If your macrocomponents share a common library for things like shared types or utility calculations, version it properly and treat changes to it like changes to a public API.
-- **Test business logic in isolation within each component.** Each macrocomponent should have a thorough unit test suite that runs in milliseconds without hitting any external service. Integration tests that cross component boundaries are a separate concern.
-- **Use anti-corruption layers at component boundaries.** When one macrocomponent calls another, translate the response into your own domain model. Do not let another component's data structures leak into your business logic.
+- Structure each macrocomponent internally as if it were a modular monolith. Just because you split into a few services does not mean you can skip internal code organization. Each macrocomponent still needs clean layers and testable business logic.
+- Isolate shared libraries and keep them stable. If your macrocomponents share a common library for things like shared types or utility calculations, version it properly and treat changes to it like changes to a public API.
+- Test business logic in isolation within each component. Each macrocomponent should have a thorough unit test suite that runs in milliseconds without hitting any external service. Integration tests that cross component boundaries are a separate concern.
+- Use anti-corruption layers at component boundaries. When one macrocomponent calls another, translate the response into your own domain model. Do not let another component's data structures leak into your business logic.
 
 ### Microservices
 
-- **Keep services small enough that internal modularity is almost trivial.** If a microservice is so large that it needs complex internal module boundaries, it might be doing too much. A well-scoped microservice often has a single domain module at its core.
-- **Invest heavily in contract testing.** With many services communicating over the network, you need confidence that changes to one service do not break its consumers. Consumer-driven contract tests are essential.
-- **Standardize service templates and scaffolding.** When teams spin up new microservices frequently, a consistent internal structure (where business logic lives, where infrastructure code goes, how tests are organized) saves enormous time and reduces cognitive load.
-- **Do not share code through shared libraries unless absolutely necessary.** In a microservices world, shared libraries create hidden coupling. Prefer duplicating small amounts of code over creating a shared library that ties services together at deploy time.
-
----
+- Keep services small enough that internal modularity is almost trivial. If a microservice is so large that it needs complex internal module boundaries, it might be doing too much. A well-scoped microservice often has a single domain module at its core.
+- Invest heavily in contract testing. With many services communicating over the network, you need confidence that changes to one service do not break its consumers. Consumer-driven contract tests are essential.
+- Standardize service templates and scaffolding. When teams spin up new microservices frequently, a consistent internal structure (where business logic lives, where infrastructure code goes, how tests are organized) saves enormous time and reduces cognitive load.
+- Do not share code through shared libraries unless absolutely necessary. In a microservices world, shared libraries create hidden coupling. Prefer duplicating small amounts of code over creating a shared library that ties services together at deploy time.
 
 ## Test Strategy
 
@@ -55,8 +49,6 @@ At the top of the pyramid, use end-to-end tests sparingly. These tests exercise 
 
 For APIs, add contract tests. These sit between integration and end-to-end tests and verify that your API produces responses that match what your consumers expect. Tools like Pact or Spring Cloud Contract make this practical. Across the firm where dozens of systems consume your APIs, contract tests are the best way to catch breaking changes before they reach production.
 
----
-
 ## Keep Business Logic Separate from Infrastructure
 
 The goal is straightforward. Your business logic, meaning the calculations, validations, and rules that define what your application actually does, should not directly depend on your database, your HTTP framework, or any external service. It should be plain code that takes inputs and produces outputs.
@@ -64,8 +56,6 @@ The goal is straightforward. Your business logic, meaning the calculations, vali
 When business logic is tangled up with database queries and API calls, the only way to test it is to stand up the entire environment. When it is separated, you can test your rules with simple function calls and predictable inputs. That is the difference between a test suite that runs in seconds and one that takes 20 minutes and fails randomly.
 
 How you organize your folders and packages to achieve this is up to your team. Every framework and language has its own conventions. The principle is what matters: business logic should not import your database library, your HTTP framework, or your messaging SDK. The code that talks to those systems should live in a separate place and call into the business logic, not the other way around.
-
----
 
 ## Adoption Guidance
 
@@ -96,8 +86,6 @@ How you organize your folders and packages to achieve this is up to your team. E
 - Architecture fitness functions or static analysis rules enforce module boundaries and dependency direction automatically.
 - The team shares patterns, libraries, or templates with other teams and contributes to the organization's testing and architecture standards.
 
----
-
 ## Minimum Standards
 
 1. All new business logic must have unit tests that run without external dependencies (no database, no network, no file system).
@@ -110,8 +98,6 @@ How you organize your folders and packages to achieve this is up to your team. E
 8. Integration tests must exist for all database repository implementations and external API client wrappers.
 9. Circular dependencies between modules are not allowed. Build tooling or static analysis must enforce this.
 
----
-
 ## Scoring Criteria
 
 | Area | Level 1 | Level 2 | Level 3 |
@@ -122,8 +108,6 @@ How you organize your folders and packages to achieve this is up to your team. E
 | Dependency management | Dependency injection is used in new code. The team understands the direction of dependencies. | Business logic projects have no direct references to infrastructure frameworks. | Static analysis or build rules enforce dependency direction. No violations exist. |
 | Testability | At least one critical business rule can be tested in isolation. | Most business logic can be tested without external dependencies. | All business logic is fully testable in isolation. Test doubles are simple and well-maintained. |
 | Maintainability | No new classes exceed the size limit. Legacy hotspots are identified. | The team actively refactors legacy code toward the target structure. | Code quality metrics are tracked, trended, and continuously improved. |
-
----
 
 ## Anti-Patterns
 
@@ -143,8 +127,6 @@ How you organize your folders and packages to achieve this is up to your team. E
 
 - **Framework lock-in disguised as architecture.** Every class inherits from a framework base class. Your domain entities extend `HibernateEntity` or `EntityFrameworkBase`. Your business logic is welded to the persistence framework. If the framework changes or you need to switch databases, you are rewriting everything. Keep your domain objects plain and framework-free.
 
----
-
 ## Getting Started
 
 1. **Pick your worst pain point.** Find the one class or module that the team dreads changing. The one that has caused the most production incidents or the most merge conflicts. That is where you will get the most value from refactoring first.
@@ -156,3 +138,5 @@ How you organize your folders and packages to achieve this is up to your team. E
 4. **Agree on a target project structure as a team.** Draw a simple diagram showing where domain logic, application services, infrastructure, and entry points should live. Put it on a wiki page. Reference it in code reviews. You do not need to move everything at once, but everyone should know where new code belongs.
 
 5. **Refactor incrementally.** Do not try to restructure your entire application in one sprint. Every time you touch a piece of code for a bug fix or a feature, leave it a little better. Extract one class. Add one test. Remove one dependency on a concrete implementation. Over time, these small improvements compound into a fundamentally better codebase.
+
+*This tenet is part of the Architecture Modernization initiative. See the [Architecture Tenets Overview](./00-Architecture-Tenets-Overview.md) for the full set of tenets, the maturity model, and the scoring framework.*

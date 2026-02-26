@@ -4,8 +4,6 @@
 
 Security, compliance, and governance are foundational constraints that shape how you design, build, and operate every application across the firm. Every design decision should account for who can access what, how you prove it, and how you demonstrate compliance. It is about building the right guardrails so teams can move fast with confidence that they are not creating risk.
 
----
-
 ## Universal Security Concerns
 
 Every application across the firm, regardless of its regulatory profile or technology stack, must address these concerns. How each application addresses them will vary based on its specific context, the data it handles, and the regulations it falls under.
@@ -50,8 +48,6 @@ Every external integration is a potential attack surface. Vendor connections sho
 
 Every application should have a plan for what happens when something goes wrong. Who gets notified? How do you contain the damage? How do you communicate with stakeholders? You do not need a 50-page document, but you do need a clear set of steps that your team can follow under pressure.
 
----
-
 ## How This Applies by Architecture Model
 
 ### Modular Monolith
@@ -73,8 +69,6 @@ Every application should have a plan for what happens when something goes wrong.
 - Use short-lived credentials where possible. Long-lived credentials across dozens of services are a serious risk.
 - Each service produces its own audit events, but they should flow into a centralized store where they can be queried and correlated.
 
----
-
 ## Security in the Development Workflow
 
 The traditional approach to security is a gate at the end. You build the application, a security team reviews it, finds problems, and sends it back. This creates bottlenecks, delays releases, and often results in superficial fixes because the team is under pressure to ship.
@@ -83,8 +77,6 @@ The better approach is to embed security checks into your normal development wor
 
 Think about security during design, not just during code review. When you are designing a new feature, ask yourself what data it touches, who should be able to access it, what happens if it is abused, and what audit trail it needs to produce. A few minutes of thought during design can prevent weeks of remediation later.
 
----
-
 ## Audit Readiness
 
 In a regulated environment, being ready for an audit is not something you prepare for once a year. It is a continuous state. Your applications should be designed so that at any point in time, you can answer the fundamental questions about who accessed what, when, and why.
@@ -92,8 +84,6 @@ In a regulated environment, being ready for an audit is not something you prepar
 The foundation is immutable audit logging. Every significant action in your application should produce an audit event that cannot be modified or deleted. This includes user logins, access to sensitive data, configuration changes, permission grants, and administrative actions. The logs should capture who performed the action, what the action was, when it happened, what data was affected, and the outcome.
 
 Beyond logging, audit readiness means having clear data lineage and change management trails. Data lineage lets you trace a piece of data from its source through all the transformations and systems it passes through until it reaches a report or customer-facing screen. Change management trails prove that every modification to production systems went through a defined approval process. When an examiner asks how a specific number ended up in a regulatory report, you should be able to walk them through the entire chain from source to output.
-
----
 
 ## Adoption Guidance
 
@@ -124,33 +114,20 @@ Beyond logging, audit readiness means having clear data lineage and change manag
 - Run regular penetration testing or security exercises against your application.
 - Contribute security patterns, libraries, and templates back to the organization for other teams to use.
 
----
-
 ## Minimum Standards
 
 These are the baseline security expectations that apply universally across all applications. Individual applications may have additional requirements based on the specific regulations they fall under.
 
 1. All applications must authenticate users through the firm's centralized identity provider. Local user stores and application-managed passwords are not permitted for production systems.
-
 2. Sensitive data must be encrypted at rest and in transit. The specific encryption standards depend on your application's regulatory requirements, but plain text storage or transmission of sensitive data is never acceptable.
-
 3. All applications must produce immutable audit logs that capture authentication events, authorization decisions, access to sensitive data, and administrative actions. Retention periods are determined by the regulations applicable to your application.
-
 4. No credentials, API keys, certificates, or encryption keys may be stored in source code, configuration files committed to version control, or container images.
-
 5. All applications must implement role-based access control with roles defined according to the principle of least privilege.
-
 6. All third-party dependencies must be scanned for known vulnerabilities. The team must have a defined process for responding to critical findings.
-
 7. All changes to production systems must go through a documented change management process that includes approval, testing, and rollback procedures.
-
 8. All applications must undergo a security assessment before initial production deployment and after any significant architectural change.
-
 9. All third-party integrations must use encrypted channels, validate inputs, and limit vendor access to the minimum required scope.
-
 10. All applications must have a documented incident response procedure that covers security events, data breaches, and unauthorized access.
-
----
 
 ## Scoring Criteria
 
@@ -164,8 +141,6 @@ These are the baseline security expectations that apply universally across all a
 | Change Management | All production changes go through a documented approval process | Automated change tracking through CI/CD pipelines. Segregation of duties enforced in the deployment process | Fully automated change evidence collection. Automated policy gates in pipeline. Continuous compliance monitoring |
 | Third-Party Risk | Vendor integrations documented. Encrypted connections for all vendor traffic | Vendor security assessments completed. Vendor access scoped and monitored | Automated vendor risk monitoring. Continuous assessment of vendor security posture |
 | Incident Response | Incident response procedure documented and team members trained | Incident response tested regularly. Automated alerting for security events. Runbooks for common scenarios | Automated incident detection and initial response. Regular security exercises. Post-incident reviews feed back into architecture improvements |
-
----
 
 ## Anti-Patterns
 
@@ -185,8 +160,6 @@ These are the baseline security expectations that apply universally across all a
 
 - **"The developer is also the admin."** Developers have production database access and can deploy code directly to production without approval. There is no segregation of duties. A single person can write code, deploy it, and modify data without any independent check.
 
----
-
 ## Getting Started
 
 1. **Map your sensitive data.** Walk through your application and identify every place where sensitive data is stored, processed, logged, or transmitted. This includes databases, message queues, log files, cache layers, and API responses. You cannot protect what you do not know about.
@@ -198,7 +171,5 @@ These are the baseline security expectations that apply universally across all a
 4. **Run your first security scan.** Add automated security scanning to your CI/CD pipeline. Do not try to fix every finding at once. Triage the results, fix the critical items, and create backlog items for the rest. The important thing is that the scanning is running and visible.
 
 5. **Review your access controls.** Check who has access to your production systems, databases, and deployment pipelines. Remove any access that is not actively needed. Set a regular schedule to review access going forward. This one step alone will address a significant portion of audit findings.
-
----
 
 *Security expectations within the firm are not optional. Building security, compliance, and governance into your architecture from the start is the cost of operating here. The specific controls each application must implement will depend on the data it handles and the regulations it falls under, but the concerns outlined in this document apply to everyone.*

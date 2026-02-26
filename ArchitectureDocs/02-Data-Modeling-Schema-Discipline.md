@@ -4,8 +4,6 @@
 
 When there is no discipline around how data is modeled, schema drift creeps in, ownership becomes unclear, and uncoordinated changes break downstream systems without warning. In a regulated environment this is not just inconvenient, it is a compliance risk. This tenet establishes the expectation that every application team thinks deliberately about how their data is structured, who owns it, how it changes over time, and how it gets shared.
 
----
-
 ## Key Principles
 
 - Every shared data entity has a single authoritative application. Ownership lives at the application level, meaning the application that creates and maintains the data is the authority, and the development team responsible for that application manages its schema. This is not about assigning a single person as the owner. It is about making sure there is one clear source of truth and one team accountable for how that data is structured and changed.
@@ -16,8 +14,6 @@ When there is no discipline around how data is modeled, schema drift creeps in, 
 - Incoming data is validated against the expected schema at every boundary
 - Data models are published in a discoverable catalog, not buried in code
 - Schema changes that affect regulatory reporting require cross-team review before shipping
-
----
 
 ## How This Applies by Architecture Model
 
@@ -44,8 +40,6 @@ When there is no discipline around how data is modeled, schema drift creeps in, 
 - Design for eventual consistency across services. In a microservices world, you will not have transactional consistency across service boundaries. Use sagas or choreography patterns to manage multi-step processes that span multiple services.
 - Keep your internal persistence model completely decoupled from your published event schemas. You should be able to refactor your database without any consumer noticing.
 
----
-
 ## Schema Evolution and Versioning
 
 Schema changes across the firm are not something you can take lightly. A field that gets renamed in one system might break a downstream system that generates a regulatory filing. A schema change might cascade through multiple dependent applications all at once. You need a strategy for evolving schemas safely.
@@ -56,8 +50,6 @@ For breaking changes that cannot be avoided, use an explicit versioning strategy
 
 Regulatory reporting deserves special attention. If your data feeds regulatory reports, any schema change must be validated against the reporting requirements before it ships. This means involving your risk and compliance teams early. Not as a gate, but as a partner. They can tell you which fields are critical for which reports, and that saves everyone from a painful surprise when a filing comes back wrong.
 
----
-
 ## Data Ownership and Boundaries
 
 The single hardest data problem across the firm is answering the question, "Which application is the authority for this data?" The honest answer is usually that multiple applications store overlapping data with slightly different fields, slightly different formats, and slightly different update frequencies. When they disagree, nobody knows which one is right.
@@ -67,8 +59,6 @@ The fix is not to force every application into a single shared database. That ha
 Establishing these boundaries takes real organizational work. It is not a purely technical exercise. You need business stakeholders, data stewards, and the development teams responsible for each application to agree on which application is the authority for which data. Start with the most contested data domains first, get those lines drawn, and document them clearly.
 
 Once this is established, the day-to-day work gets much simpler. Development teams know where to go for the truth. Schema changes are handled by the team that owns the authoritative application. Disputes have a clear escalation path. And your data quality improves because there is one application and one team accountable for each critical data element, rather than fifteen applications all assuming someone else is handling it.
-
----
 
 ## Adoption Guidance
 
@@ -99,8 +89,6 @@ Once this is established, the day-to-day work gets much simpler. Development tea
 - You actively track and reduce data duplication across systems, with clear lineage from source of truth to downstream copies.
 - Your team contributes to the organization's shared canonical data models and helps evolve them based on real-world needs.
 
----
-
 ## Minimum Standards
 
 1. Every application must use a versioned schema migration tool for all database changes. No manual DDL in production.
@@ -114,8 +102,6 @@ Once this is established, the day-to-day work gets much simpler. Development tea
 9. Every published schema must include a version identifier that changes when the schema changes.
 10. For shared data entities, the authoritative application must be identified and documented. The development teams responsible for consuming applications should know which application is the source of truth.
 
----
-
 ## Scoring Criteria
 
 | Area | Level 1 | Level 2 | Level 3 |
@@ -126,8 +112,6 @@ Once this is established, the day-to-day work gets much simpler. Development tea
 | Schema Evolution | Changes are versioned. Team understands backward compatibility. | Backward-compatible evolution is standard practice. Breaking changes follow a documented migration plan. | Parallel version support is automated. Migration windows are tied to business cycles like reporting periods. |
 | Documentation and Discovery | Basic data dictionary exists. Naming conventions defined. | Schemas are published in a shared registry or catalog. Other teams can discover and reference them. | Canonical models are the organizational standard. Team contributes to and evolves shared models. |
 | Regulatory Alignment | Team knows which data feeds regulatory reports. | Schema changes to regulated data are reviewed with compliance before deployment. | Automated lineage tracking from source of truth through to regulatory output. |
-
----
 
 ## Anti-Patterns
 
@@ -147,8 +131,6 @@ Once this is established, the day-to-day work gets much simpler. Development tea
 
 - **The Regulatory Surprise.** A team changes a field used in regulatory reporting without telling the compliance team. The change goes unnoticed until the quarterly filing comes back with a data quality exception from the regulator.
 
----
-
 ## Getting Started
 
 1. **Inventory your data.** Spend an hour listing the key data entities your application manages. For each one, write down whether your application is the source of truth or whether it gets that data from somewhere else. This alone gives you a much clearer picture of your data landscape.
@@ -160,3 +142,5 @@ Once this is established, the day-to-day work gets much simpler. Development tea
 4. **Identify your downstream consumers.** Find out who depends on your data. Talk to those teams. Ask them what fields they use and what would break if you changed something. This conversation alone prevents most schema-related incidents.
 
 5. **Flag one data ownership question.** Pick the most ambiguous data entity in your domain and start the conversation about who the authoritative source should be. You will not solve it this week, but getting it on the table is the first step.
+
+*This tenet is part of the Architecture Modernization initiative. See the [Architecture Tenets Overview](./00-Architecture-Tenets-Overview.md) for the full set of tenets, the maturity model, and the scoring framework.*

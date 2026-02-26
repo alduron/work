@@ -4,8 +4,6 @@
 
 AI and machine learning are being embedded into operations across the firm right now. AI-ready architecture means building the hooks, pipelines, and interfaces now so your application is not a dead end when the time comes. You do not need to build AI features today, but you do need clean data access patterns, well-defined events, and integration points where model outputs can plug into business processes without a rewrite.
 
----
-
 ## Key Principles
 
 - Application data is accessible through well-defined interfaces, not locked behind direct database access
@@ -16,8 +14,6 @@ AI and machine learning are being embedded into operations across the firm right
 - Computed features (like "average transaction amount over 30 days") are built once and stored for reuse
 - Workflows capture outcomes so AI models can receive feedback for retraining
 - All data exposed for AI/ML use has a classification label and defined access policy
-
----
 
 ## How This Applies by Architecture Model
 
@@ -44,8 +40,6 @@ AI and machine learning are being embedded into operations across the firm right
 - Implement real-time streaming pipelines alongside your event-driven architecture. Services like fraud detection need sub-second inference, which means the data pipeline from event to model to decision must be fully streaming.
 - Build observability into AI integration points. Track model call latency, prediction distributions, and error rates just like you would for any other service dependency. If a fraud model starts returning unusual scores, you need to know immediately.
 
----
-
 ## Data Accessibility for AI/ML
 
 The biggest barrier to AI adoption is not model building. It is data access. Most enterprise applications store data in relational databases optimized for transactions, not for the kind of wide, denormalized, time-series queries that ML workloads need. The first step toward AI-readiness is making your data accessible without compromising your production system.
@@ -56,8 +50,6 @@ Feature stores are the next layer. A feature store is a shared repository of com
 
 For sensitive data, use tokenization, anonymization, or differential privacy techniques before data enters the ML pipeline. Regulations require this, and your data platform should enforce it automatically. Do not rely on individual teams to get this right. Build it into the pipeline so that by the time data reaches the feature store, it is already compliant.
 
----
-
 ## Integrating AI-Driven Decisions
 
 Building a great ML model is only half the problem. The other half is getting its predictions into your application at the right time, in the right format, with appropriate fallback behavior. This is the integration challenge, and it requires thoughtful design.
@@ -65,8 +57,6 @@ Building a great ML model is only half the problem. The other half is getting it
 The simplest pattern is synchronous inference. Your application calls an ML model endpoint, passes in the features, and gets back a prediction. Fraud scoring at the point of transaction authorization is a good example. The model receives transaction details, returns a risk score, and your application uses that score to approve, decline, or flag the transaction for review. Keep the model call behind an abstraction, like a strategy pattern or a service interface, so you can update models, add champion-challenger testing, or fall back to rules-based logic without changing your core workflow.
 
 For use cases where latency is less critical, asynchronous inference works well. Document classification is a good example. A customer uploads a document, your application publishes an event, and a downstream ML service classifies it and updates the record. Anti-money laundering batch scoring is another case where you score a portfolio of customers overnight and surface alerts the next morning. The key design decision is how your application handles the period between request and result. Build your UI and workflow to gracefully handle pending states and eventual results.
-
----
 
 ## Adoption Guidance
 
@@ -96,27 +86,16 @@ For use cases where latency is less critical, asynchronous inference works well.
 - Your team actively contributes to the organization's data and AI platform, sharing features, event schemas, and integration patterns that other teams can reuse.
 - AI integration points have full observability with alerts on model latency, prediction drift, and error rates.
 
----
-
 ## Minimum Standards
 
 1. Your application must emit domain events for all significant business actions to a shared message broker. Events must include enough context for downstream consumers to use without calling back.
-
 2. Your production database must not be directly accessed by any ML pipeline, reporting tool, or analytical workload. Use CDC, data APIs, or event streams to provide data access.
-
 3. All data exported for ML consumption must go through a pipeline that enforces data governance rules, including masking of PII and compliance with data residency requirements.
-
 4. Your application must have a documented data catalog entry that describes the data it produces, the events it emits, and the access patterns it supports.
-
 5. Any integration with an ML model must be behind an abstraction layer. You must be able to swap model versions, fall back to rules-based logic, or disable the model entirely without a code change to your core business logic.
-
 6. Event schemas and data export schemas must be versioned and registered in a shared schema registry. Breaking changes require a deprecation process.
-
 7. Your application must handle ML model unavailability gracefully. If a fraud scoring service is down, your application must have a defined fallback behavior, not an unhandled exception.
-
 8. Sensitive data fields must be classified and tagged in your schema. Any data pipeline that exports this data must respect those classifications automatically.
-
----
 
 ## Scoring Criteria
 
@@ -128,8 +107,6 @@ For use cases where latency is less critical, asynchronous inference works well.
 | Feature Management | Key data assets and potential features are documented | Computed features are published to a feature store and used by at least one model | Feature computation is versioned, automated, and served consistently for training and real-time inference |
 | Data Governance | Sensitive fields are documented and classification rules are defined | Masking and tokenization are enforced automatically in the data pipeline | Governance is fully automated with lineage tracking, compliance auditing, and fine-grained access controls |
 | Resilience and Fallback | Fallback behavior for ML model unavailability is documented | Fallback logic is implemented and tested, with graceful degradation in production | Automated failover between model versions, circuit breakers on model calls, and continuous resilience testing |
-
----
 
 ## Anti-Patterns
 
@@ -149,8 +126,6 @@ For use cases where latency is less critical, asynchronous inference works well.
 
 - **Real-time aspirations, batch reality.** You build a fraud detection system that needs real-time transaction scoring, but your data pipeline runs nightly batch exports. By the time the model sees a suspicious transaction, the money is already gone. Match your data pipeline latency to your use case requirements.
 
----
-
 ## Getting Started
 
 1. **Inventory your data assets.** Make a list of the key data your application produces. Write down where each piece lives, what format it is in, and who consumes it today. This is your starting point for any AI initiative.
@@ -162,3 +137,5 @@ For use cases where latency is less critical, asynchronous inference works well.
 4. **Build one ML integration point.** Pick a use case where your application could consume an ML prediction. Fraud scoring on a transaction, document classification on upload, or risk scoring on an account action. Build the integration behind an abstraction with a fallback to rules-based logic. Even if the model does not exist yet, having the hook in place makes future integration trivial.
 
 5. **Talk to your data and ML teams.** Find out what data they wish they had from your application. The answer will almost certainly be "everything, in real-time, with proper schemas." Start with what is feasible and build from there.
+
+*This tenet is part of the Architecture Modernization initiative. See the [Architecture Tenets Overview](./00-Architecture-Tenets-Overview.md) for the full set of tenets, the maturity model, and the scoring framework.*

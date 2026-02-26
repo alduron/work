@@ -21,39 +21,39 @@ Domain-Driven Architecture organizes your system around business capabilities in
 
 ### Modular Monolith
 
-- **Define modules along domain boundaries.** Each module represents a bounded context. For example, an enterprise application might have modules for Incident Management, Workflow Engine, Notifications, and Reporting. Keep these in separate namespaces or packages.
+- Define modules along domain boundaries. Each module represents a bounded context. For example, an enterprise application might have modules for Incident Management, Workflow Engine, Notifications, and Reporting. Keep these in separate namespaces or packages.
 
-- **Enforce module boundaries through access controls.** Use your language's visibility features (internal classes, package-private access, module systems) to prevent one domain from directly calling another domain's internals. If you cannot enforce it technically, enforce it through code review and linting rules.
+- Enforce module boundaries through access controls. Use your language's visibility features (internal classes, package-private access, module systems) to prevent one domain from directly calling another domain's internals. If you cannot enforce it technically, enforce it through code review and linting rules.
 
-- **Each module owns its own database schema or set of tables.** Even though everything lives in one database, each module should only read and write its own tables. Cross-module data access goes through the module's public interface, never through direct table queries. To be clear, a "public interface" in a monolith is not a separate REST endpoint. It is a service class or interface that acts as the front door to that module. Other modules call methods on that interface. It is a method call within the same process, not a network call. The point is to have a defined boundary so that other modules are not reaching directly into your internal classes, repositories, or data access layers.
+- Each module owns its own database schema or set of tables. Even though everything lives in one database, each module should only read and write its own tables. Cross-module data access goes through the module's public interface, never through direct table queries. To be clear, a "public interface" in a monolith is not a separate REST endpoint. It is a service class or interface that acts as the front door to that module. Other modules call methods on that interface. It is a method call within the same process, not a network call. The point is to have a defined boundary so that other modules are not reaching directly into your internal classes, repositories, or data access layers.
 
-- **Use in-process events to decouple modules.** When one module needs to notify another module that a state change occurred, publish an in-process event rather than making a direct method call. This does not require installing a message broker like Kafka or RabbitMQ. Most frameworks have built-in support for this pattern. Spring has `ApplicationEventPublisher`, .NET has MediatR notifications, and Python frameworks can use a simple pub/sub class or a lightweight library. The event bus lives in memory inside your application. Events are plain data objects, and handlers are just methods that get called when an event is published. This keeps your modules loosely coupled and makes it easier to extract them later if you need to.
+- Use in-process events to decouple modules. When one module needs to notify another module that a state change occurred, publish an in-process event rather than making a direct method call. This does not require installing a message broker like Kafka or RabbitMQ. Most frameworks have built-in support for this pattern. Spring has `ApplicationEventPublisher`, .NET has MediatR notifications, and Python frameworks can use a simple pub/sub class or a lightweight library. The event bus lives in memory inside your application. Events are plain data objects, and handlers are just methods that get called when an event is published. This keeps your modules loosely coupled and makes it easier to extract them later if you need to.
 
-- **Document the context map.** Even in a monolith, draw a diagram showing which modules exist, what each one owns, and how they communicate. This is the single most valuable artifact for onboarding new developers.
+- Document the context map. Even in a monolith, draw a diagram showing which modules exist, what each one owns, and how they communicate. This is the single most valuable artifact for onboarding new developers.
 
 ### Macrocomponents
 
-- **Each macrocomponent owns one or more closely related bounded contexts.** A "Risk Management" macrocomponent might contain risk assessment, scoring, and reporting. These are grouped because they share significant data and change together frequently.
+- Each macrocomponent owns one or more closely related bounded contexts. A "Risk Management" macrocomponent might contain risk assessment, scoring, and reporting. These are grouped because they share significant data and change together frequently.
 
-- **Define clear API contracts between macrocomponents.** Each macrocomponent should expose a versioned API that other macrocomponents consume. No shared libraries with business logic crossing macrocomponent boundaries.
+- Define clear API contracts between macrocomponents. Each macrocomponent should expose a versioned API that other macrocomponents consume. No shared libraries with business logic crossing macrocomponent boundaries.
 
-- **Each macrocomponent owns its own data store.** This is the point where you start splitting databases. Each macrocomponent has its own database. Cross-component data needs are served through APIs or events, not shared database access.
+- Each macrocomponent owns its own data store. This is the point where you start splitting databases. Each macrocomponent has its own database. Cross-component data needs are served through APIs or events, not shared database access.
 
-- **Use events for cross-component communication where possible.** When a significant state change occurs, the owning macrocomponent publishes an event. Other macrocomponents subscribe to that event and handle their own side of the workflow. Neither component depends on the other's internals.
+- Use events for cross-component communication where possible. When a significant state change occurs, the owning macrocomponent publishes an event. Other macrocomponents subscribe to that event and handle their own side of the workflow. Neither component depends on the other's internals.
 
-- **Align your teams to macrocomponent boundaries.** One team (or a small group of teams) owns an entire macrocomponent, including its APIs, its data, and its deployment pipeline. This team makes decisions about the internal structure without needing approval from other teams.
+- Align your teams to macrocomponent boundaries. One team (or a small group of teams) owns an entire macrocomponent, including its APIs, its data, and its deployment pipeline. This team makes decisions about the internal structure without needing approval from other teams.
 
 ### Microservices
 
-- **One microservice per bounded context, or per aggregate if the context is large.** A single bounded context might be one service. A more complex context, if it is large enough, might be split into separate services for distinct aggregates.
+- One microservice per bounded context, or per aggregate if the context is large. A single bounded context might be one service. A more complex context, if it is large enough, might be split into separate services for distinct aggregates.
 
-- **Each service owns its data completely.** No shared databases, period. If a service needs data owned by another domain, it either gets it through an API call or maintains its own local copy updated via events.
+- Each service owns its data completely. No shared databases, period. If a service needs data owned by another domain, it either gets it through an API call or maintains its own local copy updated via events.
 
-- **Design your service interfaces around domain operations, not CRUD.** Instead of generic "update" endpoints, expose operations that speak the language of the business, like "approve request," "escalate incident," or "submit for review."
+- Design your service interfaces around domain operations, not CRUD. Instead of generic "update" endpoints, expose operations that speak the language of the business, like "approve request," "escalate incident," or "submit for review."
 
-- **Use domain events as the primary integration mechanism.** Services communicate by publishing events about what happened in their domain. A "RequestApproved" event from one service is consumed by the Notification service, the Audit service, and any other interested subscriber. None of these services call each other directly.
+- Use domain events as the primary integration mechanism. Services communicate by publishing events about what happened in their domain. A "RequestApproved" event from one service is consumed by the Notification service, the Audit service, and any other interested subscriber. None of these services call each other directly.
 
-- **Guard against distributed monolith syndrome.** If every request requires calls to five other services, and you cannot deploy any service without coordinating with three other teams, you do not have microservices. You have a distributed monolith. Redesign your context boundaries so each service can handle its core operations independently.
+- Guard against distributed monolith syndrome. If every request requires calls to five other services, and you cannot deploy any service without coordinating with three other teams, you do not have microservices. You have a distributed monolith. Redesign your context boundaries so each service can handle its core operations independently.
 
 ## Domain Ownership and Shared Databases
 
@@ -153,7 +153,5 @@ When designing domain events, name them in the past tense and in the language of
 - **Enforce one boundary in code.** Pick the cleanest boundary in your context map and enforce it. Create a proper module interface, make internal classes inaccessible to other modules, and route all cross-module communication through that interface. Start with one boundary and expand from there.
 
 - **Add a domain boundary check to your code review checklist.** The simplest thing you can do today is start asking "does this change respect our domain boundaries?" during every code review. This costs nothing and builds the habit of thinking in domains.
-
----
 
 *This tenet is part of the Architecture Modernization Tenets. See the [overview](./00-Architecture-Tenets-Overview.md) for context on how tenets work together, the maturity model, and the scoring framework.*

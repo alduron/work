@@ -140,6 +140,4 @@ Contract testing is more valuable than end-to-end integration testing for one sp
 
 5. **Add versioning to your next API change.** The next time you need to make a change to an existing API, do it with a version bump instead of modifying the existing endpoint in place. This builds the muscle memory for your team and shows consumers that you take compatibility seriously.
 
----
-
 *This is Tenet 4 of 11 in the Architecture Modernization framework. See the [Architecture Tenets Overview](./00-Architecture-Tenets-Overview.md) for context on how this tenet fits into the broader initiative.*

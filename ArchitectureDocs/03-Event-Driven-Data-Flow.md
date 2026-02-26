@@ -145,6 +145,4 @@ CQRS (Command Query Responsibility Segregation) pairs naturally with event-drive
 
 5. **Establish monitoring from day one.** Before you go live with any event-driven flow, make sure you can see what is happening. Track event publishing rates, consumer lag, dead letter queue depth, and processing errors. You will thank yourself during the first production incident.
 
----
-
 *This tenet is part of the [Architecture Modernization Tenets](./00-Architecture-Tenets-Overview.md). It should be read alongside [API-First Contracts](./04-API-First-Contracts.md) for integration patterns and [Data Freshness and Access Patterns](./06-Data-Freshness-and-Access-Patterns.md) for the read-side of event-driven architectures.*

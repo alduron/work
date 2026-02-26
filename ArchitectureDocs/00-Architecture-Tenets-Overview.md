@@ -8,8 +8,6 @@ These are not rigid mandates. They are practical guidelines designed to meet tea
 
 Every application will be assessed against these tenets. Teams adopt patterns at their own pace, and we score applications to track maturity over time. This helps leadership measure progress, prioritize investment, and make informed decisions about each application.
 
----
-
 ## The Tenets
 
 ### Design and Structure
@@ -57,8 +55,6 @@ Make your application's data accessible for AI and ML use cases. Even if you are
 **[Security, Compliance and Governance by Design](./11-Security-Compliance-Governance.md)**
 Build security and compliance in from day one. Encrypt sensitive data, enforce least privilege, maintain audit trails, and automate compliance checks in your pipeline. Do not bolt it on at the end.
 
----
-
 ## Maturity Model
 
 Each tenet defines expectations at three maturity levels. Applications are scored based on the level they currently meet.
@@ -86,8 +82,6 @@ The pattern is fully embedded and continuously improving. The team contributes b
 - There is evidence of continuous improvement
 - The team mentors other teams on this pattern
 - The application is considered an exemplar
-
----
 
 ## Scoring Framework
 
@@ -131,8 +125,6 @@ The **Application Modernization Score** is a weighted average across all 11 tene
 | Green | 2.0 to 2.4 | Patterns are adopted and the team is continuously improving |
 | Blue | 2.5 to 3.0 | Exemplary. This team is a reference implementation for others |
 
----
-
 ## How to Use This Guide
 
 ### If You Are a Developer or Development Team
@@ -154,8 +146,6 @@ The **Application Modernization Score** is a weighted average across all 11 tene
 3. Recognize teams that reach Exemplary status
 4. Use scores to inform build, buy, or retire decisions
 
----
-
 ## Adoption Journey
 
 These tenets define where each application needs to get to, not when it needs to get there. Each of the 15 applications will chart its own path based on its current state, its business criticality, and the priorities of its team. The maturity levels provide a shared definition of progress, and the scoring framework gives teams a way to measure where they stand.
@@ -167,7 +157,5 @@ These tenets define where each application needs to get to, not when it needs to
 3. **Broaden adoption.** Work toward Level 1 across all tenets. Standardize CI/CD pipelines (Tenet 8) and establish the shared API catalog (Tenet 4). These enablers make everything else easier.
 4. **Deepen maturity.** Push high-priority areas toward Level 2 and Level 3. Publish reference implementations, adopt event-driven integration patterns, and introduce AI-Ready capabilities where they add value.
 5. **Sustain and evolve.** Architecture is not a destination. Continuously reassess scores, share knowledge through the community of practice, and evolve the tenets themselves as the technology landscape changes.
-
----
 
 *This is a living document. The tenets, scoring weights, and maturity definitions will evolve as we learn. Feedback from development teams is essential. Submit suggestions through the Architecture Community of Practice.*

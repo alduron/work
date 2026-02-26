@@ -4,8 +4,6 @@
 
 This tenet is about knowing how fresh your data is, knowing how fresh it needs to be, and closing the gap. Across the firm, applications routinely make decisions based on data that is 24 hours old or more because most systems were built around batch processing. It is not about making everything real-time. Some data can absolutely be a day old and that is fine. But the team should be making that decision deliberately, not inheriting it because "that is how the batch job works."
 
----
-
 ## Key Principles
 
 - Every data source and data feed has a documented freshness requirement agreed on with the business
@@ -16,8 +14,6 @@ This tenet is about knowing how fresh your data is, knowing how fresh it needs t
 - Stale data that is acceptable for one use case may not be acceptable for another. Each use case is evaluated independently
 - Read models store data in the shape consumers need, not the shape it was written in
 - Data freshness is monitored and alerted on just like uptime and latency
-
----
 
 ## How This Applies by Architecture Model
 
@@ -45,8 +41,6 @@ This tenet is about knowing how fresh your data is, knowing how fresh it needs t
 - Implement the Backend for Frontend (BFF) pattern when different channels need different shapes of the same data.
 - Version your read model schemas independently from your write models. Read models evolve faster and should not be coupled to write-side schema changes.
 
----
-
 ## Replacing Batch with Near-Real-Time
 
 The biggest source of stale data in most enterprise applications is batch processing. Data moves between systems on a nightly schedule because that is how it was built 10 or 20 years ago. The batch job was never meant to be the long-term solution, but nobody replaced it.
@@ -57,8 +51,6 @@ For the flows that need to be fresher, the most common approaches are event-driv
 
 The goal is not to eliminate all batch processing. The goal is to make sure batch is a deliberate choice, not the default because nobody built anything better.
 
----
-
 ## Read Optimization and CQRS
 
 When you need fresh data served fast, separating your read path from your write path pays off quickly. This is the core idea behind CQRS (Command Query Responsibility Segregation). The write side handles validation, business rules, and safe storage. The read side serves pre-computed, denormalized data optimized for the specific query pattern.
@@ -66,8 +58,6 @@ When you need fresh data served fast, separating your read path from your write 
 You do not need to go all-in on CQRS or event sourcing to get value here. The simplest version is having different code modules for reads and writes, hitting the same database but using different tables. A denormalized "account summary" table that gets updated when balances change is dramatically faster to query than joining five normalized tables every time someone opens the mobile app.
 
 CQRS shows up naturally in most enterprise applications. Your write pipeline needs strong consistency and careful orchestration. But your read paths just need fast, pre-computed results. Your reporting team needs to query patterns across millions of records, but the write side stores individual records one at a time. These are fundamentally different workloads and they deserve different solutions.
-
----
 
 ## Adoption Guidance
 
@@ -97,8 +87,6 @@ CQRS shows up naturally in most enterprise applications. Your write pipeline nee
 - The team publishes reusable patterns and libraries for data freshness and read optimization that other teams can adopt.
 - Batch processes that remain are documented as intentional choices with business justification.
 
----
-
 ## Minimum Standards
 
 1. Every data source consumed by the application must have a documented freshness requirement that the business has agreed to.
@@ -112,8 +100,6 @@ CQRS shows up naturally in most enterprise applications. Your write pipeline nee
 9. Read models must be rebuildable. If you lose a read projection, there must be a documented process to recreate it from the source of truth.
 10. Teams must review data freshness and read path performance quarterly.
 
----
-
 ## Scoring Criteria
 
 | Area | Level 1 | Level 2 | Level 3 |
@@ -124,8 +110,6 @@ CQRS shows up naturally in most enterprise applications. Your write pipeline nee
 | Batch Replacement | Batch data flows are inventoried and freshness gaps documented. | At least one critical batch flow has been replaced with near-real-time delivery. | All time-sensitive data flows use near-real-time patterns. Batch is used only where appropriate. |
 | Monitoring and Alerting | Read latency baselines are established. Basic monitoring is in place. | Read latency, cache hit rates, and projection lag are monitored with alerts on degradation. | Real-time dashboards cover all read paths. Anomaly detection identifies issues before users notice. |
 | Rebuildability | Read models have a known source of truth. Manual rebuild is possible. | Read models can be rebuilt through a documented, tested process. | Rebuilds are automated, tested regularly, and complete within documented recovery targets. |
-
----
 
 ## Anti-Patterns
 
@@ -145,8 +129,6 @@ CQRS shows up naturally in most enterprise applications. Your write pipeline nee
 
 - **Premature event sourcing.** Jumping to a full event-sourced architecture when all you needed was a materialized view, a cache, and a CDC stream. Event sourcing adds significant complexity. Start simple and add it only when you genuinely need temporal queries or a complete audit trail.
 
----
-
 ## Getting Started
 
 1. **Map your data flows.** List every data source your application depends on. For each one, write down how it gets to you (batch, API, event, manual) and how old it typically is when you use it. This alone will be eye-opening.
@@ -158,7 +140,5 @@ CQRS shows up naturally in most enterprise applications. Your write pipeline nee
 4. **Add freshness metadata.** For your most important read paths, add a "last updated" timestamp. Surface it in the UI or API response. This builds awareness and prevents people from assuming the data is current when it is not.
 
 5. **Separate read and write code.** Refactor your data access layer so read operations and write operations are in different modules. You do not need to change your database yet. Just clean up the code so you can evolve each path independently.
-
----
 
 *Related tenets: [Domain-Driven Architecture](./01-Domain-Driven-Architecture.md), [Event-Driven Data Flow](./03-Event-Driven-Data-Flow.md), [Observability-Driven Systems](./07-Observability-Driven-Systems.md)*

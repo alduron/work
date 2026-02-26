@@ -4,8 +4,6 @@
 
 Monitoring tells you whether something is up or down. Observability tells you why it is down and what is affected. If you cannot ask new questions of your production systems without deploying new code, you do not have observability, you have dashboards. Structured logs, metrics, and distributed traces should be first-class concerns from day one, not things you bolt on after an incident. Observability is also a regulatory expectation, as auditors want to know how you detect issues, how quickly you respond, and whether you can trace a request from end to end.
 
----
-
 ## Key Principles
 
 - Every service, module, and integration point ships with structured logging, health checks, and basic metrics from day one
@@ -17,33 +15,29 @@ Monitoring tells you whether something is up or down. Observability tells you wh
 - No PII or sensitive data in logs without masking
 - Observability data has defined retention policies and access controls
 
----
-
 ## How This Applies by Architecture Model
 
 ### Modular Monolith
 
-- **Structured logging with module context.** Every log entry should include the module name, a correlation ID, and enough context to identify which business operation it belongs to. Even inside a single process, you need to know which module generated what.
-- **Health check endpoints.** Expose a health check that reports the status of each internal module and its dependencies, like database connections, message queues, and downstream APIs.
-- **Internal request tracing.** Use in-process tracing to capture how a request flows through modules. This gives you the same kind of visibility that distributed tracing gives microservices, but without the network overhead.
-- **Centralized metrics collection.** Publish module-level metrics (response times, error rates, queue depths) to a central collector. Even in a monolith, different modules have different performance characteristics and you need to see them independently.
+- Structured logging with module context. Every log entry should include the module name, a correlation ID, and enough context to identify which business operation it belongs to. Even inside a single process, you need to know which module generated what.
+- Health check endpoints. Expose a health check that reports the status of each internal module and its dependencies, like database connections, message queues, and downstream APIs.
+- Internal request tracing. Use in-process tracing to capture how a request flows through modules. This gives you the same kind of visibility that distributed tracing gives microservices, but without the network overhead.
+- Centralized metrics collection. Publish module-level metrics (response times, error rates, queue depths) to a central collector. Even in a monolith, different modules have different performance characteristics and you need to see them independently.
 
 ### Macrocomponents
 
-- **Distributed tracing across services.** With multiple deployable units, you need trace propagation across HTTP calls, message queues, and event streams. Every outbound call should propagate trace context headers.
-- **Per-service dashboards and SLOs.** Each macrocomponent should have its own dashboard showing request rate, error rate, and latency. Define SLOs for each service and track them independently.
-- **Centralized log aggregation.** Logs from all services should flow into a single platform where you can search and correlate across service boundaries. Tag every log entry with a service name and trace ID.
-- **Dependency health visibility.** Each macrocomponent should report the health of its dependencies. If the payment service cannot reach the fraud engine, that should be visible in seconds, not discovered during an incident call.
+- Distributed tracing across services. With multiple deployable units, you need trace propagation across HTTP calls, message queues, and event streams. Every outbound call should propagate trace context headers.
+- Per-service dashboards and SLOs. Each macrocomponent should have its own dashboard showing request rate, error rate, and latency. Define SLOs for each service and track them independently.
+- Centralized log aggregation. Logs from all services should flow into a single platform where you can search and correlate across service boundaries. Tag every log entry with a service name and trace ID.
+- Dependency health visibility. Each macrocomponent should report the health of its dependencies. If the payment service cannot reach the fraud engine, that should be visible in seconds, not discovered during an incident call.
 
 ### Microservices
 
-- **Mandatory distributed tracing.** In a microservices architecture, you cannot operate without distributed tracing. Every service must propagate trace context. Every span should include the operation name, status, and relevant business identifiers.
-- **Service mesh observability.** If you are running a service mesh, use it to collect golden signal metrics (request rate, error rate, latency) automatically. This gives you baseline observability without changing application code.
-- **Automated anomaly detection.** With many services, you cannot watch every dashboard. Use anomaly detection to surface unexpected changes in error rates, latency distributions, or traffic patterns.
-- **Correlation across async boundaries.** Many microservice interactions are asynchronous. Make sure trace context is propagated through message brokers and event streams, not just synchronous HTTP calls.
-- **Canary and progressive delivery observability.** When deploying a new version, compare its metrics against the existing version in real time. Automated rollback should trigger when SLO violations are detected during a rollout.
-
----
+- Mandatory distributed tracing. In a microservices architecture, you cannot operate without distributed tracing. Every service must propagate trace context. Every span should include the operation name, status, and relevant business identifiers.
+- Service mesh observability. If you are running a service mesh, use it to collect golden signal metrics (request rate, error rate, latency) automatically. This gives you baseline observability without changing application code.
+- Automated anomaly detection. With many services, you cannot watch every dashboard. Use anomaly detection to surface unexpected changes in error rates, latency distributions, or traffic patterns.
+- Correlation across async boundaries. Many microservice interactions are asynchronous. Make sure trace context is propagated through message brokers and event streams, not just synchronous HTTP calls.
+- Canary and progressive delivery observability. When deploying a new version, compare its metrics against the existing version in real time. Automated rollback should trigger when SLO violations are detected during a rollout.
 
 ## The Three Pillars in Practice
 
@@ -55,8 +49,6 @@ Monitoring tells you whether something is up or down. Observability tells you wh
 
 When these three pillars work together, you get something powerful. You see an alert fire because your success rate SLO is burning too fast (metrics). You drill into the affected time window and find a spike in timeout errors from a downstream service (logs). You pull up a sample trace and see that the downstream call is taking 12 seconds instead of the usual 200 milliseconds because a dependency is degraded (traces). That entire investigation takes minutes, not hours. That is observability.
 
----
-
 ## SLOs, SLIs, and Alerting
 
 A Service Level Objective (SLO) is a target for how well your service should perform, expressed as a percentage over a time window. For example, "99.9% of API requests will complete successfully within 2 seconds, measured over a rolling 30-day window." The measurement itself is the Service Level Indicator (SLI). The SLO is the target you set for that measurement. Start with SLOs for your most critical flows. Do not try to define SLOs for everything at once. Pick three to five that matter most and get those right first.
@@ -64,8 +56,6 @@ A Service Level Objective (SLO) is a target for how well your service should per
 The real value of SLOs comes from how you alert on them. Traditional alerting uses static thresholds. "Alert when error rate exceeds 5%" or "alert when latency exceeds 3 seconds." The problem is that these thresholds are usually guesses, and they generate noise. A brief spike to 6% error rate that resolves in 30 seconds is not the same as a sustained 5.1% error rate that slowly eats your error budget over days. SLO-based alerting uses the concept of burn rate. If your error budget for the month is being consumed faster than expected, you get alerted. A fast burn (you will exhaust your budget in hours) triggers an urgent page. A slow burn (you will exhaust your budget in days) triggers a ticket for investigation. This approach dramatically reduces alert fatigue and focuses your team on the incidents that actually affect customers.
 
 Your error budget is the inverse of your SLO. A 99.9% SLO gives you a 0.1% error budget, which works out to about 43 minutes of downtime per month. When the budget is healthy, teams have room to take risks, ship faster, and experiment. When the budget is depleted, the team shifts focus to reliability. This creates a natural, data-driven conversation between feature delivery and operational stability. It replaces the usual argument of "we need to ship features" versus "we need to fix reliability" with a shared number that everyone can see.
-
----
 
 ## Adoption Guidance
 
@@ -95,31 +85,18 @@ Your error budget is the inverse of your SLO. A 99.9% SLO gives you a 0.1% error
 - The team contributes shared observability libraries, dashboards, or alerting templates that other teams can reuse.
 - Post-incident reviews consistently reference observability data, and improvements to instrumentation are a standard outcome of every review.
 
----
-
 ## Minimum Standards
 
 1. All applications must produce structured logs in a consistent, machine-readable format with correlation IDs that can trace a request across all components involved.
-
 2. All applications must send logs to the organization's centralized log aggregation platform. Logs must not exist only on local servers or ephemeral containers.
-
 3. Every deployable component must expose a health check endpoint that reports its status and the reachability of its critical dependencies.
-
 4. Every application must collect and publish the four golden signal metrics (request rate, error rate, latency, saturation) for its primary entry points.
-
 5. Applications must define at least one SLO for availability and one for latency, with SLIs measured and visible on a dashboard.
-
 6. All inter-service calls must propagate trace context using a standard format (W3C Trace Context or B3 propagation headers).
-
 7. Sensitive data (PII, full account numbers, authentication credentials) must never appear in logs, metrics labels, or trace attributes in plaintext. Use masking or tokenization.
-
 8. Every production alert must have a corresponding runbook that describes how to investigate and respond.
-
 9. Log retention must meet the organization's regulatory and compliance requirements, which is typically a minimum of seven years.
-
 10. Observability tooling must be accessible to all team members without requiring special access requests. Developers should be able to query logs, view traces, and inspect dashboards for their own services.
-
----
 
 ## Scoring Criteria
 
@@ -130,8 +107,6 @@ Your error budget is the inverse of your SLO. A 99.9% SLO gives you a 0.1% error
 | **Tracing** | Basic request tracing within a single deployable unit | Distributed traces span all synchronous and primary async calls across services | Full end-to-end tracing covers every production path including batch and event-driven flows |
 | **Alerting** | Alerts exist for critical failures (service down, database unreachable) | Alerts are SLO-based with burn rate thresholds and linked runbooks | Alerts auto-correlate with traces and logs, reducing mean time to diagnosis to under 15 minutes |
 | **Operational Maturity** | Team can investigate a production issue using centralized logs | Team resolves most incidents using observability tooling without SSH or ad-hoc queries | Post-incident reviews consistently improve instrumentation and the team shares patterns org-wide |
-
----
 
 ## Anti-Patterns
 
@@ -151,8 +126,6 @@ Your error budget is the inverse of your SLO. A 99.9% SLO gives you a 0.1% error
 
 - **Ignoring async and batch flows.** The team has great observability for their REST APIs, but the nightly batch settlement job, the event-driven fraud check, and the file-based regulatory report have zero instrumentation. These are often the most critical and the hardest to debug when they fail.
 
----
-
 ## Getting Started
 
 1. **Add structured logging to your next release.** Pick a structured logging library and standardize on JSON format. Add a correlation ID to every log entry. If your application already has logging, convert it from free-text to structured format one module at a time.
@@ -164,7 +137,5 @@ Your error budget is the inverse of your SLO. A 99.9% SLO gives you a 0.1% error
 4. **Add health checks and golden signal metrics.** Expose a health check endpoint for every deployable component. Instrument your primary entry points to emit request rate, error rate, and latency metrics. Connect them to a dashboard so the team can see the state of the system at a glance.
 
 5. **Trace one critical business flow end to end.** Pick a high-value flow in your application. Add trace context propagation across every system it touches. Walk through the trace in your observability platform and verify you can follow the entire journey. This exercise will reveal every gap in your instrumentation.
-
----
 
 *This tenet is part of the Architecture Modernization initiative. For the full set of tenets and the scoring framework, see the [Architecture Tenets Overview](./00-Architecture-Tenets-Overview.md).*

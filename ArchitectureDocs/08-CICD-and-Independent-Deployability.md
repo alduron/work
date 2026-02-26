@@ -143,6 +143,4 @@ Beyond feature flags, techniques like blue-green deployments and canary releases
 
 5. **Talk to your change management team.** Understand what approvals and evidence are required for production deployments. Build those requirements into your pipeline from the start rather than treating compliance as something you bolt on later.
 
----
-
 *This tenet is part of the Architecture Modernization initiative. See the [Architecture Tenets Overview](./00-Architecture-Tenets-Overview.md) for the full list of tenets, the maturity model, and the scoring framework.*
